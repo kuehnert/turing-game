@@ -1,30 +1,65 @@
 <script>
-	export let name;
+  import { onMount } from "svelte";
+  import Buttons from "./Buttons.svelte";
+  import NumberTape from "./NumberTape.svelte";
+  import Field from "./Field.svelte";
+  import { index, problems, currentProblem } from "./stores.js";
+
+  let counter = 0;
+
+  onMount(async () => {
+    const response = await fetch("/problems.json");
+    const data = await response.json();
+    await problems.set(data);
+    await index.set(1);
+  });
 </script>
 
-<main>
-	<h1>Hello {name}!</h1>
-	<p>Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn how to build Svelte apps.</p>
-</main>
-
 <style>
-	main {
-		text-align: center;
-		padding: 1em;
-		max-width: 240px;
-		margin: 0 auto;
-	}
+  main {
+    font-family: sans-serif;
+    text-align: center;
+  }
 
-	h1 {
-		color: #ff3e00;
-		text-transform: uppercase;
-		font-size: 4em;
-		font-weight: 100;
-	}
+  header {
+    border-bottom: 1px solid black;
+    /* margin-bottom: 12px; */
+  }
 
-	@media (min-width: 640px) {
-		main {
-			max-width: none;
-		}
-	}
+  footer {
+    border-top: 1px solid black;
+    padding-top: 12px;
+    text-align: center;
+  }
 </style>
+
+<main>
+  <header>
+    <h1>The Turing Game Online</h1>
+  </header>
+
+  {#if $currentProblem != null}
+    <div>
+      <h2>Problem No. {$index}, “{$currentProblem.name}”</h2>
+
+      <div>
+        <NumberTape value={$currentProblem.output} inverse={true} />
+        <NumberTape value={$currentProblem.input} inverse={false} />
+
+        <Field field={$currentProblem.field} />
+        <Buttons />
+      </div>
+    </div>
+  {:else}
+    <div>Loading...</div>
+  {/if}
+
+  <footer>
+    <div class="">
+      This is a remake of the truly excellent but Flash-bassed
+      <a href="http://snuke.main.jp/turing/en/game.php">
+        http://snuke.main.jp/turing/en/game.php
+      </a>
+    </div>
+  </footer>
+</main>
